@@ -4,6 +4,7 @@ import { Route } from 'react-router-dom';
 import NavBar from './components/navBar';
 import PackageDelivery from './pages/package-delivery/package-delivery';
 // import { Route } from "react-router";
+
 class App extends React.Component {
   render() {
     return (
