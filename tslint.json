@@ -13,7 +13,6 @@
     "ordered-imports": false,
     "no-console": false,
     "object-literal-sort-keys": false,
-    "no-debugger": false,
     "no-string-literal": false
   }
 }
