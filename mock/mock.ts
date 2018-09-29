@@ -6,7 +6,7 @@ const server = express();
 
 server.use(bodyParser.json());
 server.listen(3001, () => {
-    console.log(`mock server listening on port ${3000}`);
+    console.log(`mock server listening on port ${3001}`);
 });
 
 const packages: Package[] = [];
