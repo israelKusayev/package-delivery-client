@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as moment from 'moment';
 import { PackageDeliveryState } from './package-delivery.state';
+import { Package } from './../../models/package.model';
 
 class PackageDelivery extends React.Component<{}, PackageDeliveryState> {
   barcodeIdLength = 8;
@@ -10,18 +11,6 @@ class PackageDelivery extends React.Component<{}, PackageDeliveryState> {
     this.state = new PackageDeliveryState();
 
     this.handleChange = this.handleChange.bind(this);
-  }
-
-  componentDidMount() {
-    // need URL !!
-    // fetch('url')
-    //   .then((res) => res.json())
-    //   .then((data) => {
-    //     this.setState({
-    //       ...this.state,
-    //       allPackages: data
-    //     });
-    //   });
   }
 
   async handleChange({
@@ -38,35 +27,43 @@ class PackageDelivery extends React.Component<{}, PackageDeliveryState> {
 
     if (input.value.length === this.barcodeIdLength) {
       await this.handOverPackage(
-        'https://jsonplaceholder.typicode.com/users',
+        'http://localhost:3001/api/packages',
         input.value
-      ); // temp url
+      );
     }
   }
 
   async handOverPackage(url: string, barcodeId: string) {
     const now = moment().format();
+    let currentPackage: Package = new Package();
+    await fetch(`${url}/${barcodeId}`)
+      .then((res) => {
+        return res.json();
+      })
+      .then((data) => {
+        currentPackage = data;
+        console.log(currentPackage);
+      });
 
-    await fetch(url, {
-      method: 'PATCH',
+    await fetch(`${url}/${barcodeId}`, {
+      method: 'PUT',
       body: JSON.stringify({
+        ...currentPackage,
         handOverPackage: now
       }),
       headers: {
         'Content-type': 'application/json; charset=UTF-8'
       }
-    })
-      .then((res) => {
-        this.handleErrors(res);
-        if (res.ok) {
-          this.setState({
-            ...this.state,
-            deliverySucceeded: true
-          });
-        }
-        return res.json();
-      })
-      .then((data) => console.log(data));
+    }).then((res) => {
+      this.handleErrors(res);
+      if (res.ok) {
+        this.setState({
+          ...this.state,
+          deliverySucceeded: true
+        });
+      }
+      console.log(res);
+    });
   }
 
   handleErrors(res: Response) {

@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "bootstrap": "^4.1.3",
+    "moment": "^2.22.2",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
-    "react-scripts-ts": "2.17.0",
     "react-router-dom": "^4.3.1",
-    "bootstrap": "^4.1.3"
+    "react-scripts-ts": "2.17.0"
   },
   "scripts": {
     "mock": "ts-node --project ./mock/tsconfig.json -r tsconfig-paths/register ./mock/mock.ts",

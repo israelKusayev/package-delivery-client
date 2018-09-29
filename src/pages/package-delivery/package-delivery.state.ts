@@ -9,6 +9,5 @@ export class PackageDeliveryState {
     this.barcodeId = '';
     this.error = '';
     this.deliverySucceeded = false;
-    this.allPackages = [];
   }
 }
