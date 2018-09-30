@@ -49,7 +49,7 @@ class AddPackage extends React.Component<{}, AddPackageState> {
   render() {
     return (
       <div>
-        <h1>Add Package</h1>
+        <h1 className="m-4 text-center">Add Package</h1>
         <form onSubmit={this.handleSubmit}>
           <div className="form-group ">
             <label htmlFor="barcodeId">Barcode-id:</label>

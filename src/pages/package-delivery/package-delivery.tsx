@@ -49,7 +49,7 @@ class PackageDelivery extends React.Component<{}, PackageDeliveryState> {
       method: 'PUT',
       body: JSON.stringify({
         ...currentPackage,
-        handOverPackage: now
+        handoverDate: now
       }),
       headers: {
         'Content-type': 'application/json; charset=UTF-8'
@@ -84,27 +84,30 @@ class PackageDelivery extends React.Component<{}, PackageDeliveryState> {
     const { error, deliverySucceeded } = this.state;
 
     return (
-      <div className="card text-center  align-middle">
-        <div className="card-header">Hand over package</div>
-        <div className="card-body">
-          <h5 className="card-title">Type barcode-id</h5>
-          <input
-            className="form-control"
-            type="text"
-            autoFocus={true}
-            value={this.state.barcodeId}
-            onChange={this.handleChange}
-          />
-        </div>
-        {error && <div className="card-text alert alert-danger">{error}</div>}
-        {deliverySucceeded && (
-          <div className="card-text alert alert-success">
-            {' '}
-            Deliverd successfuly
+      <React.Fragment>
+        <h1 className="m-4 text-center"> Hand Over Package</h1>
+        <div className="card text-center  align-middle">
+          <div className="card-header">Hand over package</div>
+          <div className="card-body">
+            <h5 className="card-title">Type barcode-id</h5>
+            <input
+              className="form-control"
+              type="text"
+              autoFocus={true}
+              value={this.state.barcodeId}
+              onChange={this.handleChange}
+            />
           </div>
-        )}
-        <div className="card-footer text-muted" />
-      </div>
+          {error && <div className="card-text alert alert-danger">{error}</div>}
+          {deliverySucceeded && (
+            <div className="card-text alert alert-success">
+              {' '}
+              Deliverd successfuly
+            </div>
+          )}
+          <div className="card-footer text-muted" />
+        </div>
+      </React.Fragment>
     );
   }
 }
