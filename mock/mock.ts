@@ -1,10 +1,12 @@
 import * as express from 'express';
+import * as cors from 'cors';
 import * as bodyParser from 'body-parser';
 import { Package } from '../src/models/package.model';
 
 const server = express();
 
 server.use(bodyParser.json());
+server.use(cors());
 server.listen(3001, () => {
     console.log(`mock server listening on port ${3001}`);
 });
@@ -51,6 +53,25 @@ server.put('/api/packages/:barcodeId', (req, res) => {
     }
 
     packages[existingPackageIndex] = {
+        ...req.body as Package,
+        barcodeId
+    }
+
+    res.status(204).end();
+});
+
+server.patch('/api/packages/:barcodeId', (req, res) => {
+    const barcodeId = req.params.barcodeId as string;
+
+    const existingPackageIndex = packages.findIndex(p => p.barcodeId === barcodeId);
+
+    if (existingPackageIndex === -1) {
+        res.status(400).send({ message: `package with barcode ${barcodeId} not found` });
+        return;
+    }
+
+    packages[existingPackageIndex] = {
+        ...packages[existingPackageIndex],
         ...req.body as Package,
         barcodeId
     }
