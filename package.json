@@ -9,7 +9,8 @@
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "react-router-dom": "^4.3.1",
-    "react-scripts-ts": "2.17.0"
+    "react-scripts-ts": "2.17.0",
+    "react-toastify": "^4.4.0"
   },
   "scripts": {
     "mock": "ts-node --project ./mock/tsconfig.json -r tsconfig-paths/register ./mock/mock.ts",
@@ -28,6 +29,7 @@
     "@types/react": "^16.4.14",
     "@types/react-dom": "^16.0.8",
     "@types/react-router-dom": "^4.3.1",
+    "@types/react-toastify": "^4.0.1",
     "body-parser": "^1.18.3",
     "concurrently": "^4.0.1",
     "cors": "^2.8.4",

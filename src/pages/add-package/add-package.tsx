@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as moment from 'moment';
 import * as _ from 'lodash';
+import { toast } from 'react-toastify';
 import * as config from '../../config';
 import { AddPackageState } from './add-package.state';
 
@@ -51,16 +52,12 @@ class AddPackage extends React.Component<{}, AddPackageState> {
       this.setState({ errors });
       return;
     }
-    this.setState({
-      successMessage: `package with barcode-id \xa0 '${
-        this.state.barcodeId
-      }'\xa0 to  \xa0\xa0'${this.state.handoverTo}'\xa0 added successfuly`
-    });
+    this.setState({ errors: {} });
     this.doSubmit();
   }
 
-  doSubmit() {
-    fetch(config.apiUrl, {
+  async doSubmit() {
+    await fetch(config.apiUrl, {
       method: 'POST',
       body: JSON.stringify({
         barcodeId: this.state.barcodeId,
@@ -72,10 +69,20 @@ class AddPackage extends React.Component<{}, AddPackageState> {
       }
     })
       .then((res) => {
-        res.json();
+        if (res.status === 400) {
+          throw new Error('this package is already exists in database');
+        } else if (!res.ok) {
+          throw new Error('something went wrong');
+        }
+        this.setState({
+          successMessage: `package with barcode-id \xa0 '${
+            this.state.barcodeId
+          }'\xa0 to \xa0'${this.state.handoverTo}'\xa0 added successfuly`
+        });
       })
       .catch((err) => {
-        console.log(err);
+        toast.error(err.message);
+        return err;
       });
 
     this.resetForm();

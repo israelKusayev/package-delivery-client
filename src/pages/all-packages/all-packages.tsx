@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as _ from 'lodash';
 import { AllPAckagesState } from './all-packages.state';
 import * as config from '../../config';
 import { Package } from './../../models/package.model';
@@ -14,6 +15,8 @@ class AllPackages extends React.Component<any, AllPAckagesState> {
   constructor(props: any) {
     super(props);
     this.state = new AllPAckagesState();
+    this.handleSearch = this.handleSearch.bind(this);
+    this.handleSort = this.handleSort.bind(this);
   }
 
   async componentDidMount() {
@@ -26,34 +29,71 @@ class AllPackages extends React.Component<any, AllPAckagesState> {
         this.setState({ ...this.state, packages });
       });
   }
+
+  handleSearch({ currentTarget: input }: React.FormEvent<HTMLInputElement>) {
+    this.setState({ searchQuery: input.value });
+  }
+
+  handleSort(path: string) {
+    const sortOrder = this.state.sortColumn.order;
+    this.setState({
+      sortColumn: { path, order: sortOrder === 'asc' ? 'desc' : 'asc' }
+    });
+  }
+
+  getPackages() {
+    const { searchQuery } = this.state;
+    let movies = this.state.packages;
+    if (searchQuery) {
+      movies = this.state.packages.filter((m) =>
+        m.handoverTo.toLowerCase().startsWith(searchQuery.toLowerCase())
+      );
+    }
+    movies = _.orderBy(
+      movies,
+      [this.state.sortColumn.path],
+      [this.state.sortColumn.order]
+    );
+    return movies;
+  }
   render() {
+    const movies = this.getPackages();
     return (
       <React.Fragment>
-        <h1 className="m-4 text-center">All Packages</h1>
+        <h2 className="m-4 text-center">All Packages</h2>
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Search by name..."
+          value={this.state.searchQuery}
+          onChange={this.handleSearch}
+        />
+        <br />
+        <table className="table">
+          <thead>
+            <tr>
+              {this.columns.map((colmn) => (
+                <th
+                  key={colmn.path}
+                  className="clickable"
+                  onClick={() => this.handleSort(colmn.path)}
+                >
+                  {colmn.title}
+                </th>
+              ))}
+            </tr>
+          </thead>
 
-        {
-          <table className="table">
-            <thead>
-              <tr>
+          <tbody>
+            {movies.map((p) => (
+              <tr key={p.barcodeId}>
                 {this.columns.map((colmn) => (
-                  <th key={colmn.path} className="clickable">
-                    {colmn.title}
-                  </th>
+                  <td key={colmn.path + p.barcodeId}>{p[colmn.path]}</td>
                 ))}
               </tr>
-            </thead>
-
-            <tbody>
-              {this.state.packages.map((p) => (
-                <tr key={p.barcodeId}>
-                  {this.columns.map((colmn) => (
-                    <td key={colmn.path + p.barcodeId}>{p[colmn.path]}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        }
+            ))}
+          </tbody>
+        </table>
       </React.Fragment>
     );
   }

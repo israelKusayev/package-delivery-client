@@ -8,16 +8,15 @@ class PackageDelivery extends React.Component<{}, PackageDeliveryState> {
     super(props);
 
     this.state = new PackageDeliveryState();
-
     this.handleChange = this.handleChange.bind(this);
   }
-
   async handleChange({
     currentTarget: input
   }: React.FormEvent<HTMLInputElement>) {
     this.setState({
-      ...this.state,
       barcodeId: input.value,
+      deliverySucceeded: false,
+
       error:
         input.value.length === config.barcodeIdLength
           ? ''
@@ -46,11 +45,18 @@ class PackageDelivery extends React.Component<{}, PackageDeliveryState> {
       this.handleErrors(res);
       if (res.ok) {
         this.setState({
-          ...this.state,
+          error: '',
           deliverySucceeded: true
         });
+        this.resetPage();
       }
-      console.log(res);
+    });
+  }
+
+  resetPage(): void {
+    this.setState({
+      error: '',
+      barcodeId: ''
     });
   }
 
