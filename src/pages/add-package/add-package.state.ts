@@ -1,11 +1,13 @@
 export class AddPackageState {
   barcodeId: string;
   handoverTo: string;
-  errors: { barcodeIdError: string; handoverToError: string };
+  successMessage: string;
+  errors: {};
 
   constructor() {
     this.barcodeId = '';
     this.handoverTo = '';
-    this.errors = { barcodeIdError: '', handoverToError: '' };
+    this.successMessage = '';
+    this.errors = {};
   }
 }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { AllPAckagesState } from './all-packages.state';
-// import * as config from '../../config';
+import * as config from '../../config';
 import { Package } from './../../models/package.model';
 
 class AllPackages extends React.Component<any, AllPAckagesState> {
@@ -17,7 +17,7 @@ class AllPackages extends React.Component<any, AllPAckagesState> {
   }
 
   async componentDidMount() {
-    await fetch('http://localhost:3001/api/packages')
+    await fetch(config.apiUrl)
       .then((res) => {
         return res.json();
       })

@@ -1,37 +1,66 @@
 import * as React from 'react';
 import * as moment from 'moment';
+import * as _ from 'lodash';
+import * as config from '../../config';
 import { AddPackageState } from './add-package.state';
 
 class AddPackage extends React.Component<{}, AddPackageState> {
+  inputNames = {
+    barcodeId: 'barcodeId',
+    handoverTo: 'handoverTo'
+  };
+  private barcodeIdInput: React.RefObject<HTMLInputElement>;
+
   constructor(props: {}) {
     super(props);
     this.state = new AddPackageState();
+    this.barcodeIdInput = React.createRef();
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  validate() {
-    const errors = this.state.errors;
+  validate(): object {
+    const errors: object = {};
     if (this.state.barcodeId === '') {
-      errors.barcodeIdError = 'Barcode-id is required';
+      errors[this.inputNames.barcodeId] = 'Barcode-id is required';
+    } else if (this.state.barcodeId.length !== 8) {
+      errors[this.inputNames.barcodeId] = `the barcode id should be ${
+        config.barcodeIdLength
+      } characters long `;
     }
     if (this.state.handoverTo === '') {
-      errors.handoverToError = 'Name is required';
+      errors[this.inputNames.handoverTo] = 'Name is required';
     }
-    this.setState({ errors });
+    return errors;
   }
 
   handleChange({ currentTarget: input }: React.FormEvent<HTMLInputElement>) {
     this.setState({
       ...this.state,
-      [input.name]: input.value
+      [input.name]: input.value,
+      successMessage: ''
     });
   }
 
   handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    this.validate();
-    fetch('http://localhost:3001/api/packages', {
+
+    const errors = this.validate();
+
+    if (!_.isEmpty(errors)) {
+      this.setState({ errors });
+      return;
+    }
+    this.setState({
+      successMessage: `package with barcode-id \xa0 '${
+        this.state.barcodeId
+      }'\xa0 to  \xa0\xa0'${this.state.handoverTo}'\xa0 added successfuly`
+    });
+    this.doSubmit();
+  }
+
+  doSubmit() {
+    fetch(config.apiUrl, {
       method: 'POST',
       body: JSON.stringify({
         barcodeId: this.state.barcodeId,
@@ -42,11 +71,25 @@ class AddPackage extends React.Component<{}, AddPackageState> {
         'Content-type': 'application/json; charset=UTF-8'
       }
     })
-      .then((res) => res.json())
-      .then((data) => console.log(data));
+      .then((res) => {
+        res.json();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    this.resetForm();
+  }
+
+  resetForm() {
+    this.setState({ barcodeId: '', handoverTo: '' });
+    if (this.barcodeIdInput.current) {
+      this.barcodeIdInput.current.focus();
+    }
   }
 
   render() {
+    const state = this.state;
     return (
       <div>
         <h1 className="m-4 text-center">Add Package</h1>
@@ -56,15 +99,16 @@ class AddPackage extends React.Component<{}, AddPackageState> {
             <input
               type="text"
               className="form-control"
-              value={this.state.barcodeId}
+              value={state.barcodeId}
               id="barcodeId"
-              name="barcodeId"
+              name={this.inputNames.barcodeId}
               autoFocus={true}
               onChange={this.handleChange}
+              ref={this.barcodeIdInput}
             />
-            {this.state.errors.barcodeIdError && (
+            {state.errors[this.inputNames.barcodeId] && (
               <div className="alert alert-danger">
-                {this.state.errors.barcodeIdError}
+                {state.errors[this.inputNames.barcodeId]}
               </div>
             )}
           </div>
@@ -74,14 +118,14 @@ class AddPackage extends React.Component<{}, AddPackageState> {
             <input
               type="text"
               className="form-control"
-              value={this.state.handoverTo}
+              value={state.handoverTo}
               id="personName"
-              name="handoverTo"
+              name={this.inputNames.handoverTo}
               onChange={this.handleChange}
             />
-            {this.state.errors.handoverToError && (
+            {state.errors[this.inputNames.handoverTo] && (
               <div className="alert alert-danger">
-                {this.state.errors.handoverToError}
+                {state.errors[this.inputNames.handoverTo]}
               </div>
             )}
           </div>
@@ -90,6 +134,12 @@ class AddPackage extends React.Component<{}, AddPackageState> {
             Add package
           </button>
         </form>
+
+        {this.state.successMessage !== '' && (
+          <h5 className="alert alert-success my-4">
+            {this.state.successMessage}
+          </h5>
+        )}
       </div>
     );
   }

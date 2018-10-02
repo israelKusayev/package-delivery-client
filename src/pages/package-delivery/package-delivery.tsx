@@ -1,10 +1,9 @@
 import * as React from 'react';
 import * as moment from 'moment';
+import * as config from '../../config';
 import { PackageDeliveryState } from './package-delivery.state';
-import { Package } from './../../models/package.model';
 
 class PackageDelivery extends React.Component<{}, PackageDeliveryState> {
-  barcodeIdLength = 8;
   constructor(props: {}) {
     super(props);
 
@@ -20,35 +19,24 @@ class PackageDelivery extends React.Component<{}, PackageDeliveryState> {
       ...this.state,
       barcodeId: input.value,
       error:
-        input.value.length === this.barcodeIdLength
+        input.value.length === config.barcodeIdLength
           ? ''
-          : `the barcode id should be ${this.barcodeIdLength} characters long `
+          : `the barcode id should be ${
+              config.barcodeIdLength
+            } characters long `
     });
 
-    if (input.value.length === this.barcodeIdLength) {
-      await this.handOverPackage(
-        'http://localhost:3001/api/packages',
-        input.value
-      );
+    if (input.value.length === config.barcodeIdLength) {
+      await this.handOverPackage(config.apiUrl, input.value);
     }
   }
 
   async handOverPackage(url: string, barcodeId: string) {
     const now = moment().format();
-    let currentPackage: Package = new Package();
-    await fetch(`${url}/${barcodeId}`)
-      .then((res) => {
-        return res.json();
-      })
-      .then((data) => {
-        currentPackage = data;
-        console.log(currentPackage);
-      });
 
     await fetch(`${url}/${barcodeId}`, {
-      method: 'PUT',
+      method: 'PATCH',
       body: JSON.stringify({
-        ...currentPackage,
         handoverDate: now
       }),
       headers: {
