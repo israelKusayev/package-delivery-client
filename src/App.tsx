@@ -7,6 +7,10 @@ import AddPackage from './pages/add-package/add-package';
 import AllPackages from './pages/all-packages/all-packages';
 import 'react-toastify/dist/ReactToastify.css';
 
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faSortDown, faSortUp } from '@fortawesome/free-solid-svg-icons';
+
+library.add(faSortDown, faSortUp);
 class App extends React.Component {
   render() {
     return (

@@ -4,6 +4,7 @@ import { AllPAckagesState } from './all-packages.state';
 import * as config from '../../config';
 import { Package } from './../../models/package.model';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 class AllPackages extends React.Component<any, AllPAckagesState> {
   columns = [
     { path: 'barcodeId', title: 'Barcode-Id' },
@@ -56,11 +57,23 @@ class AllPackages extends React.Component<any, AllPAckagesState> {
     );
     return movies;
   }
+
+  renderSortIcon(colmn: { title: string; path: string }) {
+    const { sortColumn } = this.state;
+    if (sortColumn.path !== colmn.path) {
+      return null;
+    }
+    if (sortColumn.order === 'asc') {
+      return <FontAwesomeIcon icon={'sort-up'} />;
+    }
+    return <FontAwesomeIcon icon={'sort-down'} />;
+  }
   render() {
     const movies = this.getPackages();
     return (
       <React.Fragment>
         <h2 className="m-4 text-center">All Packages</h2>
+
         <input
           type="text"
           className="form-control"
@@ -79,6 +92,7 @@ class AllPackages extends React.Component<any, AllPAckagesState> {
                   onClick={() => this.handleSort(colmn.path)}
                 >
                   {colmn.title}
+                  {this.renderSortIcon(colmn)}
                 </th>
               ))}
             </tr>
