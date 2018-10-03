@@ -48,6 +48,7 @@ class PackageDelivery extends React.Component<{}, PackageDeliveryState> {
           error: '',
           deliverySucceeded: true
         });
+        this.setState({ previousBarcodeId: barcodeId });
         this.resetPage();
       }
     });
@@ -61,7 +62,7 @@ class PackageDelivery extends React.Component<{}, PackageDeliveryState> {
   }
 
   handleErrors(res: Response) {
-    if (res.status === 404) {
+    if (res.status === 400) {
       this.setState({
         ...this.state,
         error: 'Package not found, please try again'
@@ -95,8 +96,9 @@ class PackageDelivery extends React.Component<{}, PackageDeliveryState> {
           {error && <div className="card-text alert alert-danger">{error}</div>}
           {deliverySucceeded && (
             <div className="card-text alert alert-success">
-              {' '}
-              Deliverd successfuly
+              {`package with barcode-id \xa0 '${
+                this.state.previousBarcodeId
+              }'\xa0 handover successfuly`}
             </div>
           )}
           <div className="card-footer text-muted" />

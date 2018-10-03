@@ -11,14 +11,14 @@ class NavBar extends React.Component {
 
         <div className="collapse navbar-collapse" id="navbarNavAltMarkup ">
           <div className="navbar-nav">
-            <NavLink className="nav-item nav-link mx-2" to="/addPackage">
+            <NavLink className="nav-item nav-link mx-2" to="/add-package">
               Add package
             </NavLink>
             <NavLink className="nav-item nav-link mx-2" to="/deliver">
               Hand over package
             </NavLink>
             <NavLink className="nav-item nav-link mx-2" to="/all-packages">
-              All packages{' '}
+              All packages
             </NavLink>
           </div>
         </div>

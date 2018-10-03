@@ -1,9 +1,8 @@
-import { Package } from './../../models/package.model';
 export class PackageDeliveryState {
   barcodeId: string;
+  previousBarcodeId: string; // for message
   error: string;
   deliverySucceeded: boolean;
-  allPackages: Package[];
 
   constructor() {
     this.barcodeId = '';

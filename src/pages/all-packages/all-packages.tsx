@@ -1,23 +1,43 @@
 import * as React from 'react';
 import * as _ from 'lodash';
-import { AllPAckagesState } from './all-packages.state';
-import * as config from '../../config';
-import { Package } from './../../models/package.model';
-
+import * as moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-class AllPackages extends React.Component<any, AllPAckagesState> {
+import * as config from '../../config';
+import { AllPackagesState } from './all-packages.state';
+import { Package } from './../../models/package.model';
+import { paginate } from './../../utils/paginate';
+import Pagination from '../../components/pagination';
+
+class AllPackages extends React.Component<any, AllPackagesState> {
   columns = [
     { path: 'barcodeId', title: 'Barcode-Id' },
     { path: 'handoverTo', title: 'Name' },
-    { path: 'receivedDate', title: 'Received Date' },
-    { path: 'handoverDate', title: 'handover Date' }
+    {
+      path: 'receivedDate',
+      title: 'Received Date',
+      content: (p: Package) => {
+        return p.receivedDate
+          ? moment(p.receivedDate).format('YYYY[/]MM/DD HH[:]mm A')
+          : null;
+      }
+    },
+    {
+      path: 'handoverDate',
+      title: 'handover Date',
+      content: (p: Package) => {
+        return p.handoverDate
+          ? moment(p.handoverDate).format('YYYY[/]MM/DD HH[:]mm A')
+          : null;
+      }
+    }
   ];
 
   constructor(props: any) {
     super(props);
-    this.state = new AllPAckagesState();
+    this.state = new AllPackagesState();
     this.handleSearch = this.handleSearch.bind(this);
     this.handleSort = this.handleSort.bind(this);
+    this.handlePageChange = this.handlePageChange.bind(this);
   }
 
   async componentDidMount() {
@@ -28,6 +48,7 @@ class AllPackages extends React.Component<any, AllPAckagesState> {
       .then((data) => {
         const packages: Package[] = JSON.parse(JSON.stringify(data));
         this.setState({ ...this.state, packages });
+        console.log();
       });
   }
 
@@ -50,12 +71,15 @@ class AllPackages extends React.Component<any, AllPAckagesState> {
         m.handoverTo.toLowerCase().startsWith(searchQuery.toLowerCase())
       );
     }
-    movies = _.orderBy(
+    const sorted = (movies = _.orderBy(
       movies,
       [this.state.sortColumn.path],
       [this.state.sortColumn.order]
-    );
-    return movies;
+    ));
+    const { pageSize, currentPage } = this.state;
+    movies = paginate(sorted, currentPage, pageSize);
+
+    return { movies, totalCount: sorted.length };
   }
 
   renderSortIcon(colmn: { title: string; path: string }) {
@@ -68,8 +92,13 @@ class AllPackages extends React.Component<any, AllPAckagesState> {
     }
     return <FontAwesomeIcon icon={'sort-down'} />;
   }
+
+  handlePageChange(page: number) {
+    this.setState({ currentPage: page });
+  }
   render() {
-    const movies = this.getPackages();
+    const { movies, totalCount } = this.getPackages();
+    const { currentPage, pageSize, searchQuery } = this.state;
     return (
       <React.Fragment>
         <h2 className="m-4 text-center">All Packages</h2>
@@ -78,7 +107,7 @@ class AllPackages extends React.Component<any, AllPAckagesState> {
           type="text"
           className="form-control"
           placeholder="Search by name..."
-          value={this.state.searchQuery}
+          value={searchQuery}
           onChange={this.handleSearch}
         />
         <br />
@@ -102,12 +131,20 @@ class AllPackages extends React.Component<any, AllPAckagesState> {
             {movies.map((p) => (
               <tr key={p.barcodeId}>
                 {this.columns.map((colmn) => (
-                  <td key={colmn.path + p.barcodeId}>{p[colmn.path]}</td>
+                  <td key={colmn.path + p.barcodeId}>
+                    {colmn.content ? colmn.content(p) : p[colmn.path]}
+                  </td>
                 ))}
               </tr>
             ))}
           </tbody>
         </table>
+        <Pagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          itemsCount={totalCount}
+          onPageChange={this.handlePageChange}
+        />
       </React.Fragment>
     );
   }
