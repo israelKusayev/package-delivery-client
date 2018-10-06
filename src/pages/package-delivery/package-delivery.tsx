@@ -10,9 +10,10 @@ class PackageDelivery extends React.Component<{}, PackageDeliveryState> {
     this.state = new PackageDeliveryState();
     this.handleChange = this.handleChange.bind(this);
   }
+
   async handleChange({
     currentTarget: input
-  }: React.FormEvent<HTMLInputElement>) {
+  }: React.FormEvent<HTMLInputElement>): Promise<void> {
     this.setState({
       barcodeId: input.value,
       deliverySucceeded: false,
@@ -30,7 +31,21 @@ class PackageDelivery extends React.Component<{}, PackageDeliveryState> {
     }
   }
 
-  async handOverPackage(url: string, barcodeId: string) {
+  handleErrors(res: Response): void {
+    if (res.status === 400) {
+      this.setState({
+        ...this.state,
+        error: 'Package not found, please try again'
+      });
+    } else if (!res.ok) {
+      this.setState({
+        ...this.state,
+        error: 'sorry, something went wrong'
+      });
+    }
+  }
+
+  async handOverPackage(url: string, barcodeId: string): Promise<void> {
     const now = moment().format();
 
     await fetch(`${url}/${barcodeId}`, {
@@ -55,24 +70,7 @@ class PackageDelivery extends React.Component<{}, PackageDeliveryState> {
   }
 
   resetPage(): void {
-    this.setState({
-      error: '',
-      barcodeId: ''
-    });
-  }
-
-  handleErrors(res: Response) {
-    if (res.status === 400) {
-      this.setState({
-        ...this.state,
-        error: 'Package not found, please try again'
-      });
-    } else if (!res.ok) {
-      this.setState({
-        ...this.state,
-        error: 'sorry, something went wrong'
-      });
-    }
+    this.setState({ error: '', barcodeId: '' });
   }
 
   render() {

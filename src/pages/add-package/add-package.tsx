@@ -10,7 +10,7 @@ class AddPackage extends React.Component<{}, AddPackageState> {
     barcodeId: 'barcodeId',
     handoverTo: 'handoverTo'
   };
-  private barcodeIdInput: React.RefObject<HTMLInputElement>;
+  barcodeIdInput: React.RefObject<HTMLInputElement>;
 
   constructor(props: {}) {
     super(props);
@@ -20,8 +20,8 @@ class AddPackage extends React.Component<{}, AddPackageState> {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  validate(): object {
-    const errors: object = {};
+  validate(): {} {
+    const errors = {};
     if (this.state.barcodeId === '') {
       errors[this.inputNames.barcodeId] = 'Barcode-id is required';
     } else if (this.state.barcodeId.length !== 8) {
@@ -43,7 +43,7 @@ class AddPackage extends React.Component<{}, AddPackageState> {
     });
   }
 
-  handleSubmit(e: React.FormEvent) {
+  handleSubmit(e: React.FormEvent): void {
     e.preventDefault();
 
     const errors = this.validate();
@@ -56,7 +56,7 @@ class AddPackage extends React.Component<{}, AddPackageState> {
     this.doSubmit();
   }
 
-  async doSubmit() {
+  async doSubmit(): Promise<any> {
     await fetch(config.apiUrl, {
       method: 'POST',
       body: JSON.stringify({
@@ -88,7 +88,7 @@ class AddPackage extends React.Component<{}, AddPackageState> {
     this.resetForm();
   }
 
-  resetForm() {
+  resetForm(): void {
     this.setState({ barcodeId: '', handoverTo: '' });
     if (this.barcodeIdInput.current) {
       this.barcodeIdInput.current.focus();

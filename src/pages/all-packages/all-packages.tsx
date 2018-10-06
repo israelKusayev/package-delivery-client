@@ -8,7 +8,7 @@ import { Package } from './../../models/package.model';
 import { paginate } from './../../utils/paginate';
 import Pagination from '../../components/pagination';
 
-class AllPackages extends React.Component<any, AllPackagesState> {
+class AllPackages extends React.Component<{}, AllPackagesState> {
   columns = [
     { path: 'barcodeId', title: 'Barcode-Id' },
     { path: 'handoverTo', title: 'Name' },
@@ -32,8 +32,9 @@ class AllPackages extends React.Component<any, AllPackagesState> {
     }
   ];
 
-  constructor(props: any) {
+  constructor(props: {}) {
     super(props);
+
     this.state = new AllPackagesState();
     this.handleSearch = this.handleSearch.bind(this);
     this.handleSort = this.handleSort.bind(this);
@@ -47,42 +48,45 @@ class AllPackages extends React.Component<any, AllPackagesState> {
       })
       .then((data) => {
         const packages: Package[] = JSON.parse(JSON.stringify(data));
-        this.setState({ ...this.state, packages });
-        console.log();
+        this.setState({ packages });
       });
   }
 
-  handleSearch({ currentTarget: input }: React.FormEvent<HTMLInputElement>) {
-    this.setState({ searchQuery: input.value });
+  handleSearch({ currentTarget }: React.FormEvent<HTMLInputElement>): void {
+    this.setState({ searchQuery: currentTarget.value });
   }
 
-  handleSort(path: string) {
+  handleSort(path: string): void {
     const sortOrder = this.state.sortColumn.order;
     this.setState({
       sortColumn: { path, order: sortOrder === 'asc' ? 'desc' : 'asc' }
     });
   }
 
-  getPackages() {
+  handlePageChange(page: number): void {
+    this.setState({ currentPage: page });
+  }
+
+  getPackages(): { packages: Package[]; totalCount: number } {
     const { searchQuery } = this.state;
-    let movies = this.state.packages;
+    let packages = this.state.packages;
     if (searchQuery) {
-      movies = this.state.packages.filter((m) =>
+      packages = this.state.packages.filter((m) =>
         m.handoverTo.toLowerCase().startsWith(searchQuery.toLowerCase())
       );
     }
-    const sorted = (movies = _.orderBy(
-      movies,
+    const sorted = (packages = _.orderBy(
+      packages,
       [this.state.sortColumn.path],
       [this.state.sortColumn.order]
     ));
     const { pageSize, currentPage } = this.state;
-    movies = paginate(sorted, currentPage, pageSize);
+    packages = paginate(sorted, currentPage, pageSize);
 
-    return { movies, totalCount: sorted.length };
+    return { packages, totalCount: sorted.length };
   }
 
-  renderSortIcon(colmn: { title: string; path: string }) {
+  renderSortIcon(colmn: { title: string; path: string }): any {
     const { sortColumn } = this.state;
     if (sortColumn.path !== colmn.path) {
       return null;
@@ -93,12 +97,10 @@ class AllPackages extends React.Component<any, AllPackagesState> {
     return <FontAwesomeIcon icon={'sort-down'} />;
   }
 
-  handlePageChange(page: number) {
-    this.setState({ currentPage: page });
-  }
   render() {
-    const { movies, totalCount } = this.getPackages();
+    const { packages, totalCount } = this.getPackages();
     const { currentPage, pageSize, searchQuery } = this.state;
+
     return (
       <React.Fragment>
         <h2 className="m-4 text-center">All Packages</h2>
@@ -111,34 +113,42 @@ class AllPackages extends React.Component<any, AllPackagesState> {
           onChange={this.handleSearch}
         />
         <br />
-        <table className="table">
-          <thead>
-            <tr>
-              {this.columns.map((colmn) => (
-                <th
-                  key={colmn.path}
-                  className="clickable"
-                  onClick={() => this.handleSort(colmn.path)}
-                >
-                  {colmn.title}
-                  {this.renderSortIcon(colmn)}
-                </th>
-              ))}
-            </tr>
-          </thead>
-
-          <tbody>
-            {movies.map((p) => (
-              <tr key={p.barcodeId}>
+        {totalCount === 0 &&
+          searchQuery && (
+            <div className="alert alert-danger">
+              There are no results for {searchQuery}
+            </div>
+          )}
+        {totalCount !== 0 && (
+          <table className="table">
+            <thead>
+              <tr>
                 {this.columns.map((colmn) => (
-                  <td key={colmn.path + p.barcodeId}>
-                    {colmn.content ? colmn.content(p) : p[colmn.path]}
-                  </td>
+                  <th
+                    key={colmn.path}
+                    className="clickable"
+                    onClick={() => this.handleSort(colmn.path)}
+                  >
+                    {colmn.title}
+                    {this.renderSortIcon(colmn)}
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {packages.map((p) => (
+                <tr key={p.barcodeId}>
+                  {this.columns.map((colmn) => (
+                    <td key={colmn.path + p.barcodeId}>
+                      {colmn.content ? colmn.content(p) : p[colmn.path]}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
         <Pagination
           currentPage={currentPage}
           pageSize={pageSize}

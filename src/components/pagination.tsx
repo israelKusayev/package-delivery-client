@@ -19,7 +19,6 @@ const Pagination: React.SFC<PaginationProps> = ({
     return null;
   }
   const pages = _.range(1, pagesCount + 1);
-  console.log(pages);
 
   return (
     <nav>
