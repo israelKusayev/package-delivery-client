@@ -7,6 +7,7 @@ import { AllPackagesState } from './all-packages.state';
 import { Package } from './../../models/package.model';
 import { paginate } from './../../utils/paginate';
 import Pagination from '../../components/pagination';
+import FilterGroup from '../../components/FilterGroup';
 
 class AllPackages extends React.Component<{}, AllPackagesState> {
   columns = [
@@ -39,6 +40,7 @@ class AllPackages extends React.Component<{}, AllPackagesState> {
     this.handleSearch = this.handleSearch.bind(this);
     this.handleSort = this.handleSort.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
+    this.handleFilter = this.handleFilter.bind(this);
   }
 
   async componentDidMount() {
@@ -67,25 +69,42 @@ class AllPackages extends React.Component<{}, AllPackagesState> {
     this.setState({ currentPage: page });
   }
 
+  handleFilter(selectedFilter: string): void {
+    this.setState({ selectedFilter });
+  }
+
   getPackages(): { packages: Package[]; totalCount: number } {
-    const { searchQuery } = this.state;
+    const { searchQuery, pageSize, currentPage } = this.state;
+
     let packages = this.state.packages;
     if (searchQuery) {
       packages = this.state.packages.filter((m) =>
         m.handoverTo.toLowerCase().startsWith(searchQuery.toLowerCase())
       );
     }
-    const sorted = (packages = _.orderBy(
-      packages,
+    const filterd = this.filterPackages(packages);
+
+    const sorted = _.orderBy(
+      filterd,
       [this.state.sortColumn.path],
       [this.state.sortColumn.order]
-    ));
-    const { pageSize, currentPage } = this.state;
+    );
+
     packages = paginate(sorted, currentPage, pageSize);
 
     return { packages, totalCount: sorted.length };
   }
 
+  filterPackages(packages: Package[]): Package[] {
+    const { selectedFilter } = this.state;
+    if (selectedFilter === 'all') {
+      return packages;
+    } else if (selectedFilter === 'handover') {
+      return packages.filter((p) => p.handoverDate);
+    } else {
+      return packages.filter((p) => !p.handoverDate);
+    }
+  }
   renderSortIcon(colmn: { title: string; path: string }): any {
     const { sortColumn } = this.state;
     if (sortColumn.path !== colmn.path) {
@@ -105,13 +124,26 @@ class AllPackages extends React.Component<{}, AllPackagesState> {
       <React.Fragment>
         <h2 className="m-4 text-center">All Packages</h2>
 
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Search by name..."
-          value={searchQuery}
-          onChange={this.handleSearch}
-        />
+        <div className="row">
+          <input
+            type="text"
+            className="form-control col-md-7"
+            placeholder="Search by name..."
+            value={searchQuery}
+            onChange={this.handleSearch}
+          />
+          <div className="col-md-5">
+            <div className=" float-md-right">
+              <strong>filter by : </strong>
+              <FilterGroup
+                items={this.state.filterList}
+                onItemSelect={this.handleFilter}
+                selectedItem={this.state.selectedFilter}
+              />
+            </div>
+          </div>
+        </div>
+
         <br />
         {totalCount === 0 &&
           searchQuery && (
@@ -149,6 +181,7 @@ class AllPackages extends React.Component<{}, AllPackagesState> {
             </tbody>
           </table>
         )}
+
         <Pagination
           currentPage={currentPage}
           pageSize={pageSize}

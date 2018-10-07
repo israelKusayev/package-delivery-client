@@ -7,3 +7,17 @@ body {
 .clickable {
   cursor: pointer;
 }
+
+.filter-active {
+  background-color: gray;
+}
+
+.btn {
+  border: 5px solid transparent; /* this was 1px earlier */
+}
+
+#override-bootstrap.btn:focus,
+.btn.focus {
+  -webkit-box-shadow: 0 0 0 0;
+  box-shadow: 0 0 0 0;
+}
