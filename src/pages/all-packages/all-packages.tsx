@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { toast } from 'react-toastify';
 import * as config from '../../config';
 import { AllPackagesState } from './all-packages.state';
 import { Package } from './../../models/package.model';
@@ -51,6 +52,11 @@ class AllPackages extends React.Component<{}, AllPackagesState> {
       .then((data) => {
         const packages: Package[] = JSON.parse(JSON.stringify(data));
         this.setState({ packages });
+      })
+      .catch((err) => {
+        if (err) {
+          toast.error('something went wrong');
+        }
       });
   }
 

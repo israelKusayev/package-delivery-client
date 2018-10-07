@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as moment from 'moment';
 import * as config from '../../config';
+import { toast } from 'react-toastify';
 import { PackageDeliveryState } from './package-delivery.state';
 
 class PackageDelivery extends React.Component<{}, PackageDeliveryState> {
@@ -56,17 +57,23 @@ class PackageDelivery extends React.Component<{}, PackageDeliveryState> {
       headers: {
         'Content-type': 'application/json; charset=UTF-8'
       }
-    }).then((res) => {
-      this.handleErrors(res);
-      if (res.ok) {
-        this.setState({
-          error: '',
-          deliverySucceeded: true
-        });
-        this.setState({ previousBarcodeId: barcodeId });
-        this.resetPage();
-      }
-    });
+    })
+      .then((res) => {
+        this.handleErrors(res);
+        if (res.ok) {
+          this.setState({
+            error: '',
+            deliverySucceeded: true
+          });
+          this.setState({ previousBarcodeId: barcodeId });
+          this.resetPage();
+        }
+      })
+      .catch((err) => {
+        if (err) {
+          toast.error('something went wrong');
+        }
+      });
   }
 
   resetPage(): void {
