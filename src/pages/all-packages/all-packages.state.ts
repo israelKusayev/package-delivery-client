@@ -14,7 +14,7 @@ export class AllPackagesState {
     this.sortColumn = { path: 'receivedDate', order: 'desc' };
     this.currentPage = 1;
     this.pageSize = 7;
-    this.selectedFilter = 'all';
+    this.selectedFilter = 'not handover yet';
     this.filterList = ['not handover yet', 'handover', 'all'];
   }
 }

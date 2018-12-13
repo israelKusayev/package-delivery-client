@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as _ from 'lodash';
-import * as moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { toast } from 'react-toastify';
 import * as config from '../../config';
@@ -9,31 +8,9 @@ import { Package } from './../../models/package.model';
 import { paginate } from './../../utils/paginate';
 import Pagination from '../../components/pagination';
 import FilterGroup from '../../components/FilterGroup';
+import { Table } from '../../components/table/table';
 
 class AllPackages extends React.Component<{}, AllPackagesState> {
-  columns = [
-    { path: 'barcodeId', title: 'Barcode-Id' },
-    { path: 'handoverTo', title: 'Name' },
-    {
-      path: 'receivedDate',
-      title: 'Received Date',
-      content: (p: Package) => {
-        return p.receivedDate
-          ? moment(p.receivedDate).format('YYYY[/]MM/DD HH[:]mm A')
-          : null;
-      }
-    },
-    {
-      path: 'handoverDate',
-      title: 'handover Date',
-      content: (p: Package) => {
-        return p.handoverDate
-          ? moment(p.handoverDate).format('YYYY[/]MM/DD HH[:]mm A')
-          : null;
-      }
-    }
-  ];
-
   constructor(props: {}) {
     super(props);
 
@@ -42,6 +19,7 @@ class AllPackages extends React.Component<{}, AllPackagesState> {
     this.handleSort = this.handleSort.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
+    this.renderSortIcon = this.renderSortIcon.bind(this);
   }
 
   async componentDidMount() {
@@ -84,8 +62,10 @@ class AllPackages extends React.Component<{}, AllPackagesState> {
 
     let packages = this.state.packages;
     if (searchQuery) {
-      packages = this.state.packages.filter((m) =>
-        m.handoverTo.toLowerCase().startsWith(searchQuery.toLowerCase())
+      packages = this.state.packages.filter(
+        (m) =>
+          m.handoverTo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          m.barcodeId.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
     const filterd = this.filterPackages(packages);
@@ -151,41 +131,17 @@ class AllPackages extends React.Component<{}, AllPackagesState> {
         </div>
 
         <br />
-        {totalCount === 0 &&
-          searchQuery && (
-            <div className="alert alert-danger">
-              There are no results for {searchQuery}
-            </div>
-          )}
+        {totalCount === 0 && searchQuery && (
+          <div className="alert alert-danger">
+            There are no results for {searchQuery}
+          </div>
+        )}
         {totalCount !== 0 && (
-          <table className="table">
-            <thead>
-              <tr>
-                {this.columns.map((colmn) => (
-                  <th
-                    key={colmn.path}
-                    className="clickable"
-                    onClick={() => this.handleSort(colmn.path)}
-                  >
-                    {colmn.title}
-                    {this.renderSortIcon(colmn)}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-
-            <tbody>
-              {packages.map((p) => (
-                <tr key={p.barcodeId}>
-                  {this.columns.map((colmn) => (
-                    <td key={colmn.path + p.barcodeId}>
-                      {colmn.content ? colmn.content(p) : p[colmn.path]}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <Table
+            renderSortIcon={this.renderSortIcon}
+            handleSort={this.handleSort}
+            packages={packages}
+          />
         )}
 
         <Pagination

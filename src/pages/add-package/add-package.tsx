@@ -24,7 +24,7 @@ class AddPackage extends React.Component<{}, AddPackageState> {
     const errors = {};
     if (this.state.barcodeId === '') {
       errors[this.inputNames.barcodeId] = 'Barcode-id is required';
-    } else if (this.state.barcodeId.length !== 8) {
+    } else if (this.state.barcodeId.trim().length !== 8) {
       errors[this.inputNames.barcodeId] = `the barcode id should be ${
         config.barcodeIdLength
       } characters long `;
